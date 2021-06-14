@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Abema Timetable Kaizen
 // @namespace    https://github.com/querykuma/
-// @version      1.0
+// @version      1.1
 // @description  ABEMA番組表の上部に隠れる番組タイトルを表示、現在時刻のバーを常に表示、アニメ番組までスクロール、モーダルウィンドウをクリック
 // @author       Query Kuma
 // @match        https://abema.tv/*
@@ -16,19 +16,22 @@
 
   var get_marginTop = () => {
     var node = document.querySelector(".com-timetable-DesktopTimeTableWrapper__content-wrapper");
+    if (!node) {
+      return;
+    }
     var cs = getComputedStyle(node);
     var m = cs.marginTop.match(/^(\d+)px$/);
     return m[1];
   };
 
-  var is_node_horizontal_visible = function (node) {
+  var is_node_horizontal_visible = (node) => {
     var bcr = node.getBoundingClientRect();
 
     return bcr.left <= document.scrollingElement.scrollWidth - document.scrollingElement.scrollLeft &&
       bcr.right >= -document.scrollingElement.scrollLeft;
   };
 
-  var is_node_vertical_visible = function (node, marginTop) {
+  var is_node_vertical_visible = (node, marginTop) => {
     var bcr = node.getBoundingClientRect();
 
     return bcr.top <= marginTop &&
@@ -63,6 +66,10 @@
     var target_string = "anime";
 
     var channel_headers = document.querySelector(".com-timetable-ChannelIconHeader").children;
+    if (!channel_headers.length) {
+      return;
+    }
+
     for (var i = 0; i < channel_headers.length; i++) {
       var channel_header = channel_headers[i];
       var channel_header_href = channel_header.getAttribute("href");
@@ -76,7 +83,7 @@
   };
 
   var click_modal = () => {
-    document.querySelector("body>div.com-timetable-TimeshiftTutorialModal")?.querySelector("button")?.click();
+    document.querySelector("body>div.com-timetable-TimeshiftTutorialModal button")?.click();
   };
 
   var main = () => {
@@ -87,8 +94,15 @@
 
     click_modal();
 
-    var marginTop = get_marginTop();
     var timetable = document.querySelector(".com-timetable-TimeTableListTimeTable-wrapper");
+    if (!timetable) {
+      return;
+    }
+
+    var marginTop = get_marginTop();
+    if (!marginTop) {
+      return;
+    }
 
     if (flag_first_run) {
       scroll_to_target();
@@ -122,20 +136,36 @@
   };
 
   var timeoutID = null;
-  var scroll_mutation_event = (arg) => {
-    // 指定時間スクロールイベントやMutationイベントがなければ main を実行する。
+  var last = null;
+  var events_emit = (arg) => {
+    // 指定時間、各種イベントがなければ main を実行する。
+    var interval = 500;
+
     clearTimeout(timeoutID);
-    timeoutID = setTimeout(main, 500);
+
+    if (last) {
+      var elapsed = Date.now() - last;
+      if (elapsed > interval) {
+        main();
+        last = Date.now();
+      } else {
+        timeoutID = setTimeout(events_emit, interval);
+      }
+    } else {
+      last = Date.now();
+      timeoutID = setTimeout(events_emit, interval);
+    }
   };
 
-  document.addEventListener('scroll', scroll_mutation_event, { capture: true, passive: false });
+  document.addEventListener('scroll', events_emit, { capture: true, passive: false });
+  window.addEventListener('resize', events_emit, { capture: true, passive: false });
 
   try {
     observer.disconnect();
   } catch (error) { }
 
   var callback = (mutations) => {
-    scroll_mutation_event(mutations);
+    events_emit(mutations);
   };
 
   var config = { attributes: false, childList: true, subtree: true };
