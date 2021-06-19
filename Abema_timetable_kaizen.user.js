@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Abema Timetable Kaizen
 // @namespace    https://github.com/querykuma/
-// @version      1.1
+// @version      1.2
 // @description  ABEMA番組表の上部に隠れる番組タイトルを表示、現在時刻のバーを常に表示、アニメ番組までスクロール、モーダルウィンドウをクリック
 // @author       Query Kuma
 // @match        https://abema.tv/*
@@ -149,7 +149,7 @@
         main();
         last = Date.now();
       } else {
-        timeoutID = setTimeout(events_emit, interval);
+        timeoutID = setTimeout(events_emit, interval - elapsed + 10);
       }
     } else {
       last = Date.now();
