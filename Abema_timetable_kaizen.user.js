@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Abema Timetable Kaizen
 // @namespace    https://github.com/querykuma/
-// @version      1.2
+// @version      1.3
 // @description  ABEMA番組表の上部に隠れる番組タイトルを表示、現在時刻のバーを常に表示、アニメ番組までスクロール、モーダルウィンドウをクリック
 // @author       Query Kuma
 // @match        https://abema.tv/*
@@ -43,8 +43,7 @@
     for (let i = 0; i < targets.length; i++) {
       const target = targets[i];
 
-      target.style.top = "";
-      target.style.position = "";
+      target.style.paddingTop = "";
       target.classList.remove("kaizen_adjust_position_tv_title");
     }
   };
@@ -122,10 +121,9 @@
           if (is_node_vertical_visible(timetable_child_child, marginTop)) {
 
             var bcr = timetable_child_child.getBoundingClientRect();
-            var r = timetable_child_child.querySelector(".com-timetable-TimeTableItem-item__right");
+            var r = timetable_child_child.querySelector(".com-timetable-TimetableItem__wrapper");
 
-            r.style.top = Math.ceil(marginTop - bcr.top + 10) + "px";
-            r.style.position = "absolute";
+            r.style.paddingTop = Math.ceil(marginTop - bcr.top + 8) + "px";
             r.classList.add("kaizen_adjust_position_tv_title");
           }
         }
