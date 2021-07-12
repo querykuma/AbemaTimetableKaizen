@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Abema Timetable Kaizen
 // @namespace    https://github.com/querykuma/
-// @version      1.3
+// @version      1.4
 // @description  ABEMA番組表の上部に隠れる番組タイトルを表示、現在時刻のバーを常に表示、アニメ番組までスクロール、モーダルウィンドウをクリック
 // @author       Query Kuma
 // @match        https://abema.tv/*
@@ -155,8 +155,8 @@
     }
   };
 
-  document.addEventListener('scroll', events_emit, { capture: true, passive: false });
-  window.addEventListener('resize', events_emit, { capture: true, passive: false });
+  document.addEventListener('scroll', events_emit, { capture: true, passive: true });
+  window.addEventListener('resize', events_emit, { capture: true, passive: true });
 
   try {
     observer.disconnect();
