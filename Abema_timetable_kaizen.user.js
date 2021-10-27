@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Abema Timetable Kaizen
 // @namespace    https://github.com/querykuma/
-// @version      1.4
+// @version      1.5
 // @description  ABEMA番組表の上部に隠れる番組タイトルを表示、現在時刻のバーを常に表示、アニメ番組までスクロール、モーダルウィンドウをクリック
 // @author       Query Kuma
 // @match        https://abema.tv/*
@@ -71,7 +71,8 @@
 
     for (var i = 0; i < channel_headers.length; i++) {
       var channel_header = channel_headers[i];
-      var channel_header_href = channel_header.getAttribute("href");
+      var channel_header_a = channel_header.querySelector('a');
+      var channel_header_href = channel_header_a.getAttribute("href");
       if (channel_header_href.includes(target_string)) {
         break;
       }
@@ -81,8 +82,11 @@
     dom_scroll.scrollLeft = channel_header.getBoundingClientRect().left - channel_headers[0].getBoundingClientRect().left;
   };
 
-  var click_modal = () => {
+  var click_modals = () => {
     document.querySelector("body>div.com-timetable-TimeshiftTutorialModal button")?.click();
+
+    // ABEMAが新しくなりました
+    document.querySelector(".com-onboarding-OnboardingAppealNotificationContainerView button")?.click();
   };
 
   var main = () => {
@@ -91,7 +95,11 @@
       return;
     }
 
-    click_modal();
+    try {
+      click_modals();
+    } catch (error) {
+      console.log('try_catch click_modals', error);
+    }
 
     var timetable = document.querySelector(".com-timetable-TimeTableListTimeTable-wrapper");
     if (!timetable) {
@@ -104,7 +112,11 @@
     }
 
     if (flag_first_run) {
-      scroll_to_target();
+      try {
+        scroll_to_target();
+      } catch (error) {
+        console.log('try_catch scroll_to_target', error);
+      }
       flag_first_run = false;
     }
 
